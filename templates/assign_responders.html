@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Responders</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <a href="{{ url_for('dashboard') }}" class="btn-back">Back to Dashboard</a>
+    <div class="form-container">
+        <h2>Assign Responders to {{ incident[0] }}</h2>
+        <form action="{{ url_for('assign_responders', incident_id=incident_id) }}" method="POST">
+            <div class="input-group">
+                <label for="date">Date</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <div class="input-group">
+                <label for="total_ppl">Total Personnel (Current: {{ incident[1] }})</label>
+                <input type="number" id="total_ppl" name="total_ppl" value="{{ incident[1] }}" required>
+            </div>
+            <div class="input-group">
+                <label for="crew">Crew (Current: {{ incident[2] }})</label>
+                <input type="number" id="crew" name="crew" value="{{ incident[2] }}" required>
+            </div>
+            <div class="input-group">
+                <label for="engines">Engines (Current: {{ incident[3] }})</label>
+                <input type="number" id="engines" name="engines" value="{{ incident[3] }}" required>
+            </div>
+            <div class="input-group">
+                <label for="helicopters">Helicopters (Current: {{ incident[4] }})</label>
+                <input type="number" id="helicopters" name="helicopters" value="{{ incident[4] }}" required>
+            </div>
+            <button type="submit" class="btn">Assign</button>
+        </form>
+    </div>
+</body>
+</html>

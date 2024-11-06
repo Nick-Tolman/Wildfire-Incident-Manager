@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Incident Dashboard - Incident Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="container">
+            <button id="helpBtn" class="help-button">Help?</button>
+            <div id="helpModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h3>Dashboard Help</h3>
+                    <p><strong>Create New Incident:</strong> Opens a form to create a new incident record.</p>
+                    <p><strong>Assign:</strong> Opens a form to assign or update responders for the incident.</p>
+                    <p><strong>Update:</strong> Opens a form to update details such as acres burned, containment %, etc.</p>
+                    <p><strong>Incident Name:</strong> Click on an incident name to view its summary and historical data.</p>
+                </div>
+            </div>
+        <h2>Incident Dashboard</h2>
+        <div class="actions">
+            <a href="{{ url_for('create_incident') }}" class="btn">Create New Incident</a>
+            <div class="filter">
+                <label for="status-filter">Filter by Status:</label>
+                <select id="status-filter">
+                    <option value="all">All</option>
+                    <option value="open">Open</option>
+                    <option value="closed">Closed</option>
+                </select>
+            </div>
+        </div>
+        <div class="container">
+            <a href="{{ url_for('login') }}" class="btn-logout">Logout</a>
+        </div>        
+        <table>
+            <thead>
+                <tr>
+                    <th>Actions</th>
+                    <th>Incident Name <span>(Click incident for details)</span></th>
+                    <th>Status</th>
+                    <th>Total Acres</th>
+                    <th>Cont. %</th>
+                    <th>Total PPL</th>
+                    <th>Crew</th>
+                    <th>Engines</th>
+                    <th>Helicopters</th>
+                    <th>Cost to Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for incident in incidents %}
+                <tr>
+                    <td>
+                        <form action="{{ url_for('assign_responders', incident_id=incident[0]) }}" method="get" style="display:inline;">
+                            <button type="submit" class="btn">Assign</button>
+                        </form>
+                        <form action="{{ url_for('update_incident', incident_id=incident[0]) }}" method="get" style="display:inline;">
+                            <button type="submit" class="btn">Update</button>
+                        </form>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('incident_summary', incident_id=incident[0]) }}">
+                            {{ incident[1] }}
+                        </a>
+                    </td>
+                    <td>{{ incident[2] }}</td> <!-- Status -->
+                    <td>{{ incident[3] }}</td> <!-- Total Acres -->
+                    <td>{{ incident[4] }}%</td> <!-- Containment Percentage -->
+                    <td>{{ incident[5] }}</td> <!-- Total Personnel -->
+                    <td>{{ incident[6] }}</td> <!-- Crew -->
+                    <td>{{ incident[7] }}</td> <!-- Engines -->
+                    <td>{{ incident[8] }}</td> <!-- Helicopters -->
+                    <td>                       <!-- Cost to Date (rounded) -->
+                        {% if incident[9] >= 1000000 %}
+                            {{ (incident[9] / 1000000)|round(1) }}M
+                        {% elif incident[9] >= 1000 %}
+                            {{ (incident[9] / 1000)|round(1) }}K
+                        {% else %}
+                            {{ incident[9] }}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>            
+        </table>
+    </div>
+    <script>
+        // JavaScript to handle the Help modal
+        const helpBtn = document.getElementById("helpBtn");
+        const helpModal = document.getElementById("helpModal");
+        const closeBtn = document.getElementsByClassName("close")[0];
+
+        // Open the modal
+        helpBtn.onclick = function() {
+            helpModal.style.display = "block";
+        }
+
+        // Close the modal when clicking on the "x"
+        closeBtn.onclick = function() {
+            helpModal.style.display = "none";
+        }
+
+        // Close the modal when clicking outside of it
+        window.onclick = function(event) {
+            if (event.target === helpModal) {
+                helpModal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Incident Summary</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <a href="{{ url_for('dashboard') }}" class="btn-back">Back to Dashboard</a>
+    <div class="container">
+        <h2>Incident Summary for {{ incident[1] }}</h2>
+        <div class="incident-stats" style="text-align: center; margin-bottom: 20px;">
+            <p><strong>Status:</strong> {{ incident[2] }}</p>
+            <p><strong>Total Acres:</strong> {{ incident[3] }}</p>
+            <p><strong>Containment Percentage:</strong> {{ incident[4] }}%</p>
+            <p><strong>Total Personnel:</strong> {{ incident[5] }}</p>
+            <p><strong>Crew:</strong> {{ incident[6] }}</p>
+            <p><strong>Engines:</strong> {{ incident[7] }}</p>
+            <p><strong>Helicopters:</strong> {{ incident[8] }}</p>
+            <p><strong>Structures Lost:</strong> {{ incident[9] }}</p>
+            <p><strong>Cost to Date:</strong> ${{ incident[10] | float | round(2) }}</p>
+        </div>
+        <div class="latest-description" style="text-align: center; font-style: italic; margin-bottom: 30px;">
+            <p><strong>Latest Update:</strong> {{ latest_description }}</p>
+        </div>
+        <h3 style="text-align: center;">Historical Data</h3>
+        <div class="charts" style="display: flex; flex-direction: column; align-items: center;">
+            <div style="width: 100%; max-width: 800px;">
+                <h4>Containment % Over Time</h4>
+                <canvas id="containmentChart"></canvas>
+            </div>
+            <div style="width: 100%; max-width: 800px;">
+                <h4>Total Acres to Date</h4>
+                <canvas id="totalAcresChart"></canvas>
+            </div>
+            <div style="width: 100%; max-width: 800px;">
+                <h4>Cost to Date</h4>
+                <canvas id="costChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Prepare data for the charts with unique variable names
+        const dates = {{ history | map(attribute=0) | list | tojson }};
+        const totalAcresData = {{ history | map(attribute=1) | list | tojson }};
+        const containmentData = {{ history | map(attribute=2) | list | tojson }};
+        const costToDateData = {{ history | map(attribute=4) | list | tojson }};
+    
+        // Total Acres Chart
+        new Chart(document.getElementById('totalAcresChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Total Acres',
+                    data: totalAcresData,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Date' },
+                        ticks: { maxRotation: 90, minRotation: 45 }
+                    },
+                    y: { title: { display: true, text: 'Total Acres' }, beginAtZero: true }
+                }
+            }
+        });
+    
+        // Containment Percentage Chart
+        new Chart(document.getElementById('containmentChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Containment Percentage',
+                    data: containmentData,
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Date' },
+                        ticks: { maxRotation: 90, minRotation: 45 }
+                    },
+                    y: { title: { display: true, text: 'Containment (%)' }, beginAtZero: true, max: 100 }
+                }
+            }
+        });
+    
+        // Cost to Date Chart
+        new Chart(document.getElementById('costChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Cost to Date',
+                    data: costToDateData,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Date' },
+                        ticks: { maxRotation: 90, minRotation: 45 }
+                    },
+                    y: { title: { display: true, text: 'Cost ($)' }, beginAtZero: true }
+                }
+            }
+        });
+    </script>    
+</body>
+</html>

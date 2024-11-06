@@ -1,0 +1,235 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+}
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.filter {
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 10px 15px;
+    background-color: #356b42;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 2px;
+}
+.btn:hover {
+    background-color: #356b42;
+}
+
+.login-container {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.login-container h2 {
+    margin-bottom: 20px;
+    font-size: 1.8em;
+    color: #333;
+}
+
+.input-group {
+    margin-bottom: 15px;
+    margin-right: 15px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 8px;
+    font-size: 1em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.login-description {
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+table, th, td {
+    border: 1px solid #ddd;
+}
+th, td {
+    padding: 10px;
+    text-align: left;
+}
+th {
+    background-color: #356b42;
+    color: white;
+}
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+th span {
+    font-size: 0.8em;
+    color: rgb(219, 219, 219);
+}
+
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+.form-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.form-container .input-group {
+    margin-bottom: 15px;
+}
+.form-container .input-group label {
+    display: block;
+    font-size: 0.9em;
+    color: #333;
+    margin-bottom: 5px;
+}
+.form-container .input-group input,
+.form-container .input-group select {
+    width: 100%;
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+.form-container .btn {
+    width: 100%;
+    text-align: center;
+}
+
+.incident-stats p, .latest-description p {
+    font-size: 1.1em;
+}
+
+.btn-back {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 1em;
+    margin-top: 20px;
+}
+
+.btn-back:hover {
+    background-color: #5a6268;
+}
+
+.help-button {
+    position: absolute;
+    right: 20px;
+    top: 100px;
+    padding: 10px 15px;
+    background-color: #356b42;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.help-button:hover {
+    background-color: #356b42;
+}
+
+.container {
+    position: relative;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.modal-content h3 {
+    margin-top: 0;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-logout {
+    position: absolute;
+    top: -150px;
+    right: 20px;
+    padding: 10px 15px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.btn-logout:hover {
+    background-color: #c82333;
+}

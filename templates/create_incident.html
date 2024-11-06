@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Incident</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <a href="{{ url_for('dashboard') }}" class="btn-back">Back to Dashboard</a>
+    <div class="form-container">
+        <h2>Create New Incident</h2>
+        <form id="incidentForm" action="{{ url_for('create_incident') }}" method="POST" enctype="multipart/form-data">
+            <div class="input-group">
+                <label for="name">Incident Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="input-group">
+                <label for="status">Status</label>
+                <select id="status" name="status" required>
+                    <option value="Open">Open</option>
+                    <option value="Closed">Closed</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="total_acres">Total Acres</label>
+                <input type="number" id="total_acres" name="total_acres" required>
+            </div>
+            <div class="input-group">
+                <label for="containment_percentage">Containment %</label>
+                <input type="number" id="containment_percentage" name="containment_percentage" min="0" max="100" required>
+            </div>
+            <div class="input-group">
+                <label for="total_ppl">Total Personnel</label>
+                <input type="number" id="total_ppl" name="total_ppl" required>
+            </div>
+            <div class="input-group">
+                <label for="crew">Crew</label>
+                <input type="number" id="crew" name="crew" required>
+            </div>
+            <div class="input-group">
+                <label for="engines">Engines</label>
+                <input type="number" id="engines" name="engines" required>
+            </div>
+            <div class="input-group">
+                <label for="helicopters">Helicopters</label>
+                <input type="number" id="helicopters" name="helicopters" required>
+            </div>
+            <div class="input-group">
+                <label for="incident_csv">Upload CSV</label>
+                <input type="file" id="incident_csv" name="incident_csv" accept=".csv">
+            </div>
+
+            <button type="button" onclick="showConfirmationModal()" class="btn">Create Incident</button>
+        </form>
+    </div>
+
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <h3>Confirm Incident Details</h3>
+            <p>Please verify all information is correct. Incomplete or incorrect information could slow down the response process.</p>
+            <button onclick="closeModal()" class="btn">Go Back</button>
+            <button onclick="submitForm()" class="btn">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        // Show the confirmation modal
+        function showConfirmationModal() {
+            document.getElementById("confirmationModal").style.display = "block";
+        }
+
+        // Close the modal
+        function closeModal() {
+            document.getElementById("confirmationModal").style.display = "none";
+        }
+
+        // Submit the form when the user clicks "Continue" in the modal
+        function submitForm() {
+            document.getElementById("incidentForm").submit();
+        }
+
+        // Close the modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById("confirmationModal");
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
