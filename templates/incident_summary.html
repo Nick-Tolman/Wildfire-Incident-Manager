@@ -5,26 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Incident Summary</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <a href="{{ url_for('dashboard') }}" class="btn-back">Back to Dashboard</a>
     <div class="container">
         <h2>Incident Summary for {{ incident[1] }}</h2>
         <div class="incident-stats" style="text-align: center; margin-bottom: 20px;">
-            <p><strong>Status:</strong> {{ incident[2] }}</p>
-            <p><strong>Total Acres:</strong> {{ incident[3] }}</p>
-            <p><strong>Containment Percentage:</strong> {{ incident[4] }}%</p>
-            <p><strong>Total Personnel:</strong> {{ incident[5] }}</p>
-            <p><strong>Crew:</strong> {{ incident[6] }}</p>
-            <p><strong>Engines:</strong> {{ incident[7] }}</p>
-            <p><strong>Helicopters:</strong> {{ incident[8] }}</p>
-            <p><strong>Structures Lost:</strong> {{ incident[9] }}</p>
-            <p><strong>Cost to Date:</strong> ${{ incident[10] | float | round(2) }}</p>
+            <p><strong>Status:</strong> {{ incident[4] }}</p>
+            <p><strong>Total Acres:</strong> {{ incident[5] }}</p>
+            <p><strong>Containment Percentage:</strong> {{ incident[6] }}%</p>
+            <p><strong>Total Personnel:</strong> {{ incident[7] }}</p>
+            <p><strong>Crew:</strong> {{ incident[8] }}</p>
+            <p><strong>Engines:</strong> {{ incident[9] }}</p>
+            <p><strong>Helicopters:</strong> {{ incident[10] }}</p>
+            <p><strong>Structures Lost:</strong> {{ incident[11] }}</p>
+            <p><strong>Cost to Date:</strong> ${{ incident[12] | float | round(2) }}</p>
         </div>
         <div class="latest-description" style="text-align: center; font-style: italic; margin-bottom: 30px;">
             <p><strong>Latest Update:</strong> {{ latest_description }}</p>
         </div>
+
+        <!-- Weather Information Section -->
+            <h2>Current Weather Information</h2>
+            <div class="incident-stats" style="text-align: center; margin-bottom: 20px;">
+            <p><strong>Temperature:</strong> <span id="weather-temp">Loading...</span>°F</p>
+            <p><strong>Condition:</strong> <span id="weather-condition">Loading...</span></p>
+        </div>
+
+        <!-- Fire Danger Information Section -->
+            <h2>Fire Danger Rating</h2>
+            <div class="incident-stats" style="text-align: center; margin-bottom: 20px;">
+            <p><strong>Danger Score:</strong> <span id="fire-danger-score">Loading...</span></p>
+            <p><strong>Danger Level:</strong> <span id="fire-danger-level">Loading...</span></p>
+        </div>
+
+        <!-- Historical Data Charts -->
         <h3 style="text-align: center;">Historical Data</h3>
         <div class="charts" style="display: flex; flex-direction: column; align-items: center;">
             <div style="width: 100%; max-width: 800px;">
@@ -41,13 +56,50 @@
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        const latitude = {{ incident_location[0] }};
+        const longitude = {{ incident_location[1] }};
+
+        // Fetch weather data from the microservice
+        fetch('http://127.0.0.1:5001/weather', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ latitude, longitude })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('weather-temp').innerText = data.temperature;
+            document.getElementById('weather-condition').innerText = data.weather;
+            const temperature = data.temperature;
+            const wind_speed = data.wind_speed;
+            const humidity = data.humidity;
+
+            // Fetch Fire Danger Rating
+            fetch('http://127.0.0.1:5002/fire_danger', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ temperature, wind_speed, humidity })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(fireDangerData => {
+                document.getElementById('fire-danger-score').innerText = fireDangerData.fire_danger_score.toFixed(2);
+                document.getElementById('fire-danger-level').innerText = fireDangerData.fire_danger_level;
+            })
+            .catch(error => console.error('Error fetching fire danger data:', error));
+        })
+        .catch(error => console.error('Error fetching weather data:', error));
+    
         // Prepare data for the charts with unique variable names
         const dates = {{ history | map(attribute=0) | list | tojson }};
         const totalAcresData = {{ history | map(attribute=1) | list | tojson }};
         const containmentData = {{ history | map(attribute=2) | list | tojson }};
         const costToDateData = {{ history | map(attribute=4) | list | tojson }};
-    
         // Total Acres Chart
         new Chart(document.getElementById('totalAcresChart').getContext('2d'), {
             type: 'line',
@@ -119,6 +171,6 @@
                 }
             }
         });
-    </script>    
+    </script>   
 </body>
 </html>

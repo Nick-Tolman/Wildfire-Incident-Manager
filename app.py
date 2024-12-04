@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
+import requests
 
 app = Flask(__name__)
 
@@ -13,6 +14,8 @@ def init_db():
         CREATE TABLE IF NOT EXISTS incidents (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
+            lat REAL,
+            long REAL,
             status TEXT NOT NULL,
             total_acres INTEGER,
             containment_percentage INTEGER,
@@ -31,6 +34,8 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             incident_id INTEGER,
             date TEXT,
+            lat REAL,
+            long REAL,
             total_ppl INTEGER,
             crew INTEGER,
             engines INTEGER,
@@ -46,18 +51,14 @@ def init_db():
     
     conn.commit()
     conn.close()
-    
-@app.route('/')
-def home():
-    return redirect(url_for('login'))
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        # Redirect to the dashboard without verifying credentials
-        # That will be the microservice a teammate makes
-        return redirect(url_for('dashboard'))
-    return render_template('login.html')
+@app.route('/login', methods=['GET'])
+def login_page():
+    return render_template('login_page.html')
+
+@app.route('/logout', methods=['GET'])
+def logout():
+    return redirect(url_for('login_page'))
 
 # Route for the Dashboard
 @app.route('/dashboard')
@@ -74,6 +75,8 @@ def dashboard():
 def create_incident():
     if request.method == 'POST':
         name = request.form['name']
+        lat = request.form['lat']
+        long = request.form['long']
         status = request.form['status']
         total_acres = request.form['total_acres']
         containment_percentage = request.form['containment_percentage']
@@ -85,17 +88,17 @@ def create_incident():
         conn = sqlite3.connect('incidents.db')
         cursor = conn.cursor()
         
-        # Inserts a new record into incident_history to track the changes
+        # Insert a new record into incident_history to track the changes
         cursor.execute('''
-            INSERT INTO incidents (name, status, total_acres, containment_percentage, total_ppl, crew, engines, helicopters)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (name, status, total_acres, containment_percentage, total_ppl, crew, engines, helicopters))
+            INSERT INTO incidents (name, lat, long, status, total_acres, containment_percentage, total_ppl, crew, engines, helicopters)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (name, lat, long, status, total_acres, containment_percentage, total_ppl, crew, engines, helicopters))
         conn.commit()
         conn.close()
         return redirect(url_for('dashboard'))
     return render_template('create_incident.html')
 
-# Route for assign button
+# assgin button route
 @app.route('/assign/<int:incident_id>', methods=['GET', 'POST'])
 def assign_responders(incident_id):
     conn = sqlite3.connect('incidents.db')
@@ -136,7 +139,7 @@ def assign_responders(incident_id):
     # Pass both the incident data and incident_id to the template
     return render_template('assign_responders.html', incident=incident, incident_id=incident_id)
 
-# Route for update button
+# update button route
 @app.route('/update/<int:incident_id>', methods=['GET', 'POST'])
 def update_incident(incident_id):
     conn = sqlite3.connect('incidents.db')
@@ -145,6 +148,8 @@ def update_incident(incident_id):
     if request.method == 'POST':
         # Get new values from the form submission
         total_acres = request.form['total_acres']
+        lat = request.form['lat']
+        long = request.form['long']
         containment_percentage = request.form['containment_percentage']
         structures_lost = request.form['structures_lost']
         cost_to_date = request.form['cost_to_date']
@@ -154,15 +159,15 @@ def update_incident(incident_id):
         # Update the main incidents table with the latest values
         cursor.execute('''
             UPDATE incidents
-            SET total_acres = ?, containment_percentage = ?, structures_lost = ?, cost_to_date = ?
+            SET total_acres = ?, lat = ?, long = ?, containment_percentage = ?, structures_lost = ?, cost_to_date = ?
             WHERE id = ?
-        ''', (total_acres, containment_percentage, structures_lost, cost_to_date, incident_id))
+        ''', (total_acres, lat, long, containment_percentage, structures_lost, cost_to_date, incident_id))
         
         # Insert a new record into history to track the changes
         cursor.execute('''
-            INSERT INTO incident_history (incident_id, date, total_acres, containment_percentage, structures_lost, cost_to_date, update_description)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (incident_id, date, total_acres, containment_percentage, structures_lost, cost_to_date, update_description))
+            INSERT INTO incident_history (incident_id, date, lat, long, total_acres, containment_percentage, structures_lost, cost_to_date, update_description)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (incident_id, date, lat, long, total_acres, containment_percentage, structures_lost, cost_to_date, update_description))
         
         conn.commit()
         conn.close()
@@ -171,14 +176,13 @@ def update_incident(incident_id):
         return redirect(url_for('dashboard'))
     
     # Fetch current values for the incident
-    cursor.execute("SELECT name, total_acres, containment_percentage, structures_lost, cost_to_date FROM incidents WHERE id = ?", (incident_id,))
+    cursor.execute("SELECT name, lat, long, total_acres, containment_percentage, structures_lost, cost_to_date FROM incidents WHERE id = ?", (incident_id,))
     incident = cursor.fetchone()
     conn.close()
     
     # Pass both the incident data and incident_id to the template
     return render_template('update_incident.html', incident=incident, incident_id=incident_id)
 
-# Route for incident summary when clicking on an incident
 @app.route('/incident/<int:incident_id>')
 def incident_summary(incident_id):
     conn = sqlite3.connect('incidents.db')
@@ -193,12 +197,37 @@ def incident_summary(incident_id):
     latest_description = cursor.fetchone()
     latest_description = latest_description[0] if latest_description else "No updates available."
 
+    # Fetch the latest date from incident history
+    cursor.execute("SELECT date FROM incident_history WHERE incident_id = ? ORDER BY date DESC LIMIT 1", (incident_id,))
+    latest_date = cursor.fetchone()
+    latest_date = latest_date[0] if latest_date else None
+
+    # Fetch incident's latitude and longitude
+    cursor.execute("SELECT lat, long FROM incidents WHERE id = ?", (incident_id,))
+    incident_location = cursor.fetchone()
+
     # Fetch the incident history for displaying in the chart
     cursor.execute("SELECT date, total_acres, containment_percentage, structures_lost, cost_to_date FROM incident_history WHERE incident_id = ? ORDER BY date ASC", (incident_id,))
     history = cursor.fetchall()
     
     conn.close()
-    return render_template('incident_summary.html', incident=incident, latest_description=latest_description, history=history)
+    return render_template(
+        'incident_summary.html', 
+        incident_location=incident_location, 
+        incident=incident, 
+        latest_description=latest_description, 
+        latest_date=latest_date,
+        history=history
+        )
+
+@app.route('/stats')
+def stats_page():
+    response = requests.get('http://127.0.0.1:5003/generate_graphs')
+    if response.status_code == 200:
+        graph_paths = response.json()
+        return render_template('stats.html', graphs=graph_paths)
+    else:
+        return "Error fetching graphs from stats service", 500
 
 if __name__ == '__main__':
     init_db()

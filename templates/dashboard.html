@@ -8,6 +8,10 @@
 </head>
 <body>
     <div class="container">
+        <div class="dashboard-header">
+            <h1>Dashboard</h1>
+            <button onclick="window.location.href='/logout'" class="btn btn-danger">Logout</button>
+        </div>        
         <div class="container">
             <button id="helpBtn" class="help-button">Help?</button>
             <div id="helpModal" class="modal">
@@ -22,6 +26,7 @@
             </div>
         <h2>Incident Dashboard</h2>
         <div class="actions">
+            <a href="{{ url_for('stats_page') }}" class="btn">View Fire Season Stats</a>
             <a href="{{ url_for('create_incident') }}" class="btn">Create New Incident</a>
             <div class="filter">
                 <label for="status-filter">Filter by Status:</label>
@@ -32,9 +37,6 @@
                 </select>
             </div>
         </div>
-        <div class="container">
-            <a href="{{ url_for('login') }}" class="btn-logout">Logout</a>
-        </div>        
         <table>
             <thead>
                 <tr>
@@ -74,12 +76,16 @@
                     <td>{{ incident[7] }}</td> <!-- Engines -->
                     <td>{{ incident[8] }}</td> <!-- Helicopters -->
                     <td>                       <!-- Cost to Date (rounded) -->
-                        {% if incident[9] >= 1000000 %}
-                            {{ (incident[9] / 1000000)|round(1) }}M
-                        {% elif incident[9] >= 1000 %}
-                            {{ (incident[9] / 1000)|round(1) }}K
+                        {% if incident[9] is not none %}
+                            {% if incident[9] >= 1000000 %}
+                                {{ (incident[9] / 1000000) | round(1) }}M
+                            {% elif incident[9] >= 1000 %}
+                                {{ (incident[9] / 1000) | round(1) }}K
+                            {% else %}
+                                {{ incident[9] }}
+                            {% endif %}
                         {% else %}
-                            {{ incident[9] }}
+                            N/A
                         {% endif %}
                     </td>
                 </tr>
@@ -88,29 +94,91 @@
         </table>
     </div>
     <script>
-        // JavaScript to handle the Help modal
         const helpBtn = document.getElementById("helpBtn");
         const helpModal = document.getElementById("helpModal");
         const closeBtn = document.getElementsByClassName("close")[0];
 
-        // Open the modal
         helpBtn.onclick = function() {
             helpModal.style.display = "block";
         }
 
-        // Close the modal when clicking on the "x"
         closeBtn.onclick = function() {
             helpModal.style.display = "none";
         }
 
-        // Close the modal when clicking outside of it
         window.onclick = function(event) {
             if (event.target === helpModal) {
                 helpModal.style.display = "none";
             }
         }
     </script>
-</body>
-</html>
+    <script>
+        const statusFilter = document.getElementById("status-filter");
+    
+        statusFilter.addEventListener("change", function () {
+            const filterValue = statusFilter.value.toLowerCase();
+            const tableRows = document.querySelectorAll("tbody tr");
+    
+            tableRows.forEach(row => {
+                const statusCell = row.querySelector("td:nth-child(3)");
+                if (filterValue === "all" || statusCell.textContent.toLowerCase() === filterValue) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        });
+    </script>  
+    <script>
+        function parseValue(value) {
+            value = value.trim();
+
+            if (value.endsWith("%")) {
+                return parseFloat(value.slice(0, -1));
+            }
+
+            if (value.endsWith("M")) {
+                return parseFloat(value.slice(0, -1)) * 1_000_000;
+            }
+            if (value.endsWith("K")) {
+                return parseFloat(value.slice(0, -1)) * 1_000;
+
+            } else if (!isNaN(value)) {
+                return parseFloat(value);
+            }
+
+            return value;
+        }
+
+        function sortTable(table, columnIndex, isAscending) {
+            const rows = Array.from(table.querySelectorAll("tbody tr"));
+
+            rows.sort((a, b) => {
+                const aText = a.cells[columnIndex].textContent;
+                const bText = b.cells[columnIndex].textContent;
+
+                const aValue = parseValue(aText);
+                const bValue = parseValue(bText);
+
+                if (aValue < bValue) return isAscending ? -1 : 1;
+                if (aValue > bValue) return isAscending ? 1 : -1;
+                return 0;
+            });
+
+            const tbody = table.querySelector("tbody");
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        document.querySelectorAll("th").forEach((header, index) => {
+            let isAscending = true;
+
+            header.addEventListener("click", () => {
+                const table = header.closest("table");
+                sortTable(table, index, isAscending);
+                isAscending = !isAscending;
+            });
+        });
+    </script>
+    
 </body>
 </html>

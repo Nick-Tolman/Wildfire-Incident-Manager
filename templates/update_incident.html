@@ -13,23 +13,31 @@
         <form action="{{ url_for('update_incident', incident_id=incident_id) }}" method="POST">
             <div class="input-group">
                 <label for="date">Date</label>
-                <input type="date" id="date" name="date" required>
+                <input type="date" id="date" name="date">
             </div>
             <div class="input-group">
-                <label for="total_acres">Total Acres (Current: {{ incident[1] }})</label>
-                <input type="number" id="total_acres" name="total_acres" value="{{ incident[1] }}" required>
+                <label for="lat">Latitude (Current: {{ incident[1] }})</label>
+                <input type="number" id="lat" name="lat" step="any" required>
             </div>
             <div class="input-group">
-                <label for="containment_percentage">Containment % (Current: {{ incident[2] }}%)</label>
-                <input type="number" id="containment_percentage" name="containment_percentage" value="{{ incident[2] }}" min="0" max="100" required>
+                <label for="long">Longitude (Current: {{ incident[2] }})</label>
+                <input type="number" id="long" name="long" step="any" required>
+            </div>            
+            <div class="input-group">
+                <label for="total_acres">Total Acres (Current: {{ incident[3] }})</label>
+                <input type="number" id="total_acres" name="total_acres" value="{{ incident[3] }}" step="any" required>
             </div>
             <div class="input-group">
-                <label for="structures_lost">Structures Lost (Current: {{ incident[3] }})</label>
-                <input type="number" id="structures_lost" name="structures_lost" value="{{ incident[3] }}" required>
+                <label for="containment_percentage">Containment % (Current: {{ incident[4] }}%)</label>
+                <input type="number" id="containment_percentage" name="containment_percentage" value="{{ incident[4] }}" min="0" max="100" required>
             </div>
             <div class="input-group">
-                <label for="cost_to_date">Cost to Date $ (Current: {{ incident[4] | float | round(2) }})</label>
-                <input type="number" id="cost_to_date" name="cost_to_date" value="{{ incident[4] }}" step="0.01" required>
+                <label for="structures_lost">Structures Lost (Current: {{ incident[5] }})</label>
+                <input type="number" id="structures_lost" name="structures_lost" value="{{ incident[5] }}" required>
+            </div>
+            <div class="input-group">
+                <label for="cost_to_date">Cost to Date $ (Current: {{ incident[6] | float | round(2) }})</label>
+                <input type="number" id="cost_to_date" name="cost_to_date" value="{{ incident[6] }}" step="0.01" required>
             </div>
         
             <div class="input-group">

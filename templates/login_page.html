@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h2>Pacific Northwest</h2>
+    <h2>Wildfire Dashboard</h2>
+    <div id="errorMessage" style="color: red; margin-top: 10px;"></div>
+    <div class="login-container">
+        <h2>Login</h2>
+        
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="button" class="btn" onclick="handleLogin()">Login</button>
+        </form>
+        <script>
+            async function handleLogin() {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const errorMessageDiv = document.getElementById('errorMessage');
+                errorMessageDiv.textContent = '';
+
+                try {
+                    const response = await fetch('http://127.0.0.1:5971/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username, password }),
+                    });
+
+                    const result = await response.json();
+
+                    if (response.status === 200) {
+                        window.location.href = "/dashboard";
+                    } else {
+                        errorMessageDiv.textContent = result.message || 'An error occurred';
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    errorMessageDiv.textContent = 'An error occurred while logging in';
+                }
+            }
+        </script>
+        
+        <p class="login-description">An all in one dashboard to help incident control manage wildfire responses.</p>
+    </div>
+</body>
+</html>
+

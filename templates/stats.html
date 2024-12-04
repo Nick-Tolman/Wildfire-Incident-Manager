@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fire Season Statistics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <a href="{{ url_for('dashboard') }}" class="btn-back">Back to Dashboard</a>
+    <h1>Fire Season Statistics</h1>
+
+    <div>
+        <h2>Cumulative Acres Burned Each Day</h2>
+        <img src="{{ graphs['cumulative_acres_burned'] }}" alt="Cumulative Acres Burned Each Day">
+    </div>
+
+    <div>
+        <h2>Average Containment Percentage Each Day</h2>
+        <img src="{{ graphs['avg_containment'] }}" alt="Average Containment Percentage Each Day">
+    </div>
+
+    <div>
+        <h2>Total Cost To Date</h2>
+        <img src="{{ graphs['total_cost_to_date'] }}" alt="Total Cost To Date">
+    </div>
+
+</body>
+</html>
